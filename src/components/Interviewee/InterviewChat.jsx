@@ -351,22 +351,31 @@ const InterviewChat = ({
         </div>
 
         {currentQuestion < questions.length && (
-          <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+          <div className="flex gap-3 flex-shrink-0">
             <textarea
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               placeholder="Type your answer here..."
-              className="flex-1 min-h-[60px] sm:min-h-[80px] md:min-h-[100px] max-h-[150px] sm:max-h-[200px] p-2 sm:p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary text-xs sm:text-sm md:text-base bg-background text-foreground placeholder:text-muted-foreground"
+              className="flex-1 h-24 p-3 border-2 border-input rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring text-sm bg-background text-foreground placeholder:text-muted-foreground transition-all"
               disabled={isSubmitting}
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  e.ctrlKey &&
+                  currentAnswer.trim() &&
+                  !isSubmitting
+                ) {
+                  handleSubmit();
+                }
+              }}
             />
             <Button
               onClick={handleSubmit}
               disabled={!currentAnswer.trim() || isSubmitting}
-              className="self-end sm:self-end w-full sm:w-auto text-xs sm:text-sm"
+              className="h-24 px-8 text-sm font-semibold flex items-center gap-2 rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
-              <FiSend className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="sm:hidden">Submit</span>
-              <span className="hidden sm:inline">Submit Answer</span>
+              <FiSend className="h-5 w-5" />
+              <span className="hidden sm:inline">Submit</span>
             </Button>
           </div>
         )}
