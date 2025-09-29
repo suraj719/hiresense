@@ -36,16 +36,15 @@ export const extractTextFromDOCX = async (file) => {
 };
 
 export const extractCandidateInfo = async (text) => {
-  console.log("Extracted text:", text);
-
   try {
     // Try AI extraction first
     console.log("Attempting AI extraction...");
     const aiExtractedInfo = await extractCandidateInfoFromResume(text);
-    
+
     // Check if AI extraction was successful (at least one field found)
-    const hasAnyInfo = aiExtractedInfo.name || aiExtractedInfo.email || aiExtractedInfo.phone;
-    
+    const hasAnyInfo =
+      aiExtractedInfo.name || aiExtractedInfo.email || aiExtractedInfo.phone;
+
     if (hasAnyInfo) {
       console.log("AI extraction successful:", aiExtractedInfo);
       return aiExtractedInfo;
@@ -80,7 +79,6 @@ export const extractCandidateInfoRegex = (text) => {
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
-  console.log("Lines:", lines);
 
   // Extract email
   const emailMatch = text.match(emailRegex);

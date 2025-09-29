@@ -47,6 +47,16 @@ const CandidateList = ({
     return "Needs Improvement";
   };
 
+  const formatSubmittedAt = (isoString) => {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    const dateStr = d.toLocaleDateString();
+    const timeStr = d
+      .toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })
+      .replace(":", ".");
+    return `${dateStr} • ${timeStr}`;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -123,9 +133,7 @@ const CandidateList = ({
                       </span>
                       <div className="flex items-center gap-1">
                         <FiCalendar className="h-3 w-3" />
-                        <span>
-                          {new Date(candidate.completedAt).toLocaleDateString()}
-                        </span>
+                        <span>{formatSubmittedAt(candidate.completedAt)}</span>
                       </div>
                     </div>
                   </div>

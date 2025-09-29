@@ -63,7 +63,10 @@ const InterviewChat = ({
   // Auto-submit when timer expires (timer === 0), but only after countdown actually started
   useEffect(() => {
     // If user already submitted manually, skip any auto-submit behavior
-    if (hasUserSubmittedRef.current || (answers[currentQuestion] && answers[currentQuestion].answer)) {
+    if (
+      hasUserSubmittedRef.current ||
+      (answers[currentQuestion] && answers[currentQuestion].answer)
+    ) {
       return;
     }
     if (
@@ -239,7 +242,13 @@ const InterviewChat = ({
       toast.success(`Answer submitted! Score: ${evaluation.score}/10`);
 
       setTimeout(() => {
-        onNextQuestion();
+        // onNextQuestion();
+        // setIsSubmitting(false);
+        if (currentQuestion + 1 >= questions.length) {
+          onNextQuestion(true);
+        } else {
+          onNextQuestion();
+        }
         setIsSubmitting(false);
       }, 2000);
     } catch (error) {
@@ -274,7 +283,8 @@ const InterviewChat = ({
           <h3 className="text-sm sm:text-base md:text-lg font-semibold">
             Question {currentQuestion + 1} of {questions.length}
           </h3>
-          {(!answers[currentQuestion] || typeof answers[currentQuestion]?.answer === "undefined") && (
+          {(!answers[currentQuestion] ||
+            typeof answers[currentQuestion]?.answer === "undefined") && (
             <div className="flex items-center gap-2">
               <FiClock className="h-3 w-3 sm:h-4 sm:w-4" />
               <span

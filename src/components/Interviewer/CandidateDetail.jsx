@@ -34,12 +34,18 @@ const CandidateDetail = ({ candidate, onBack }) => {
     return "text-red-600";
   };
 
-  const handleExport = () => {
-    toast.success("Export feature coming soon!");
-  };
-
-  const handleShare = () => {
-    toast.success("Share feature coming soon!");
+  const formatSubmittedAt = (isoString) => {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    const dateStr = d.toLocaleDateString();
+    const timeStr = d
+      .toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace(":", ".");
+    return `${dateStr} • ${timeStr}`;
   };
 
   return (
@@ -55,26 +61,6 @@ const CandidateDetail = ({ candidate, onBack }) => {
               {candidate.email} • {candidate.phone}
             </p>
           </div>
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-            className="flex-1 sm:flex-none"
-          >
-            <FiDownload className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShare}
-            className="flex-1 sm:flex-none"
-          >
-            <FiShare2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
         </div>
       </div>
 
@@ -118,7 +104,7 @@ const CandidateDetail = ({ candidate, onBack }) => {
               <div>
                 <p className="text-muted-foreground">Completed</p>
                 <p className="font-medium">
-                  {new Date(candidate.completedAt).toLocaleDateString()}
+                  {formatSubmittedAt(candidate.completedAt)}
                 </p>
               </div>
               <div>

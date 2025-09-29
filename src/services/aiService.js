@@ -1,6 +1,5 @@
 import { Mistral } from "@mistralai/mistralai";
 
-// Initialize Mistral client
 const mistral = new Mistral({
   apiKey: import.meta.env.VITE_MISTRAL_API_KEY,
 });
@@ -39,7 +38,6 @@ export const generateQuestions = async (candidateInfo) => {
   });
 
   const content = response.choices[0].message.content;
-  console.log("Mistral response:", content);
 
   // Try to parse JSON from the response
   let jsonMatch = content.match(/\[[\s\S]*\]/);
@@ -53,9 +51,10 @@ export const generateQuestions = async (candidateInfo) => {
   }
 
   if (jsonMatch) {
+    let cleanedJson = null;
     try {
       // Clean the JSON string by removing control characters
-      const cleanedJson = jsonMatch[0]
+      cleanedJson = jsonMatch[0]
         .replace(/[\x00-\x1F\x7F-\x9F]/g, "") // Remove control characters
         .replace(/\n/g, " ") // Replace newlines with spaces
         .replace(/\r/g, " ") // Replace carriage returns with spaces
@@ -70,11 +69,12 @@ export const generateQuestions = async (candidateInfo) => {
         throw new Error("Parsed result is not an array");
       }
 
-
       return questions;
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
-      console.error("Cleaned JSON:", cleanedJson);
+      if (cleanedJson) {
+        console.error("Cleaned JSON:", cleanedJson);
+      }
       console.error("Original content:", content);
       throw new Error(
         "Could not parse questions from Mistral response: " + parseError.message
@@ -167,14 +167,14 @@ Score guidelines:
   });
 
   const content = response.choices[0].message.content;
-  console.log("Mistral evaluation response:", content);
 
   // Try to parse JSON from the response
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
+    let cleanedJson = null;
     try {
       // Clean the JSON string by removing control characters
-      const cleanedJson = jsonMatch[0]
+      cleanedJson = jsonMatch[0]
         .replace(/[\x00-\x1F\x7F-\x9F]/g, "") // Remove control characters
         .replace(/\n/g, " ") // Replace newlines with spaces
         .replace(/\r/g, " ") // Replace carriage returns with spaces
@@ -186,11 +186,28 @@ Score guidelines:
       return evaluation;
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
-      console.error("Cleaned JSON:", cleanedJson);
-      throw new Error(
-        "Could not parse evaluation from Mistral response: " +
-          parseError.message
+      if (cleanedJson) {
+        console.error("Cleaned JSON:", cleanedJson);
+      }
+      // Fallback: try to extract a numeric score from the full content
+      const scoreMatch = content.match(/\bscore\b\s*[:=-]?\s*(10|[0-9])/i);
+      const parsedScore = scoreMatch
+        ? Math.max(0, Math.min(10, parseInt(scoreMatch[1], 10)))
+        : 5;
+      const feedbackMatch = content.match(
+        /"?feedback"?\s*[:=-]?\s*["“”]?([\s\S]{0,300}?)["”]?\s*(,|\}|$)/i
       );
+      const feedback = feedbackMatch
+        ? feedbackMatch[1].toString().trim()
+        : "Automatic fallback evaluation due to JSON parsing issue.";
+      return {
+        score: Number.isFinite(parsedScore) ? parsedScore : 5,
+        feedback,
+        suggestions: [
+          "Clarify key points concisely",
+          "Include a concrete example or trade-offs",
+        ],
+      };
     }
   } else {
     console.error("No JSON found in evaluation response:", content);
@@ -246,14 +263,14 @@ Rules:
     });
 
     const content = response.choices[0].message.content;
-    console.log("Mistral extraction response:", content);
 
     // Try to parse JSON from the response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
+      let cleanedJson = null;
       try {
         // Clean the JSON string by removing control characters
-        const cleanedJson = jsonMatch[0]
+        cleanedJson = jsonMatch[0]
           .replace(/[\x00-\x1F\x7F-\x9F]/g, "") // Remove control characters
           .replace(/\n/g, " ") // Replace newlines with spaces
           .replace(/\r/g, " ") // Replace carriage returns with spaces
@@ -270,11 +287,12 @@ Rules:
           phone: extractedInfo.phone || "",
         };
 
-        console.log("AI extracted info:", validatedInfo);
         return validatedInfo;
       } catch (parseError) {
         console.error("JSON parse error:", parseError);
-        console.error("Cleaned JSON:", cleanedJson);
+        if (cleanedJson) {
+          console.error("Cleaned JSON:", cleanedJson);
+        }
         throw new Error(
           "Could not parse extracted information from AI response: " +
             parseError.message
@@ -313,8 +331,8 @@ Answer Details:
 ${answers
   .map(
     (answer, index) => `
-Question ${index + 1}: Score ${answer.score}/10
-Answer: ${answer.answer}
+Question ${index + 1}: Score ${answer?.score ?? 0}/10
+Answer: ${answer?.answer ?? "No answer provided"}
 `
   )
   .join("")}
@@ -339,7 +357,6 @@ Keep it short, clear, and actionable for HR and technical managers.`;
   });
 
   const content = response.choices[0].message.content;
-  console.log("Mistral summary response:", content);
 
   return { summary: content };
 };

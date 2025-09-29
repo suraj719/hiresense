@@ -32,7 +32,7 @@ import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
 import { Skeleton } from "../ui/skeleton";
 import { FiCheckCircle, FiAward } from "react-icons/fi";
-
+import { store } from "../../store";
 const IntervieweeTab = () => {
   const dispatch = useDispatch();
   const {
@@ -68,7 +68,6 @@ const IntervieweeTab = () => {
         // Check if time has expired
         if (remaining <= 0) {
           dispatch(stopTimer());
-          // Auto-submit is handled inside InterviewChat to capture typed input and show score
         }
       };
 
@@ -220,20 +219,23 @@ const IntervieweeTab = () => {
     dispatch(stopTimer());
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = (forceComplete = false) => {
     dispatch(stopTimer());
     dispatch(resetQuestionTimer());
     // If moving past the last question, set loader state before marking complete
+    // const isLastQuestion = currentQuestion + 1 >= questions.length;
+    // if (isLastQuestion) {
+    // setIsGeneratingSummary(true);
+    // completeInterviewProcess(); // don’t advance index
+    // } else {
+    // dispatch(nextQuestion());
+    // }
     const isLastQuestion = currentQuestion + 1 >= questions.length;
-    if (isLastQuestion) {
+    if (isLastQuestion || forceComplete) {
       setIsGeneratingSummary(true);
-    }
-
-    dispatch(nextQuestion());
-
-    if (isLastQuestion) {
-      // Immediately proceed to summary generation so loader shows without flashing summary screen
-      completeInterviewProcess();
+      completeInterviewProcess(); // safe, answer already in Redux
+    } else {
+      dispatch(nextQuestion());
     }
   };
 
@@ -249,7 +251,8 @@ const IntervieweeTab = () => {
       // Only start a new timer if we don't already have one running
       // Also, do not start if the current question already has an answer
       const existingAnswer = answers[currentQuestion];
-      const isAnswered = existingAnswer && typeof existingAnswer.answer !== "undefined";
+      const isAnswered =
+        existingAnswer && typeof existingAnswer.answer !== "undefined";
       if ((!isTimerRunning || !questionStartTime) && !isAnswered) {
         // Add a small delay to ensure the question is properly set
         setTimeout(() => {
@@ -273,16 +276,19 @@ const IntervieweeTab = () => {
     const loadingToast = toast.loading("Generating your interview summary...");
 
     try {
-      // Ensure we have an answer object for every question
+      // Read latest state from Redux store
+      const { answers, questions, currentCandidate } =
+        store.getState().interview;
+
       const normalizedAnswers = questions.map((q, idx) => {
-        const existing = answers[idx];
-        if (existing && typeof existing.answer !== "undefined") return existing;
-        return {
-          answer: "No answer provided",
-          score: 0,
-          difficulty: q.difficulty,
-          timestamp: Date.now(),
-        };
+        return (
+          answers[idx] || {
+            answer: "No answer provided",
+            score: 0,
+            difficulty: q.difficulty,
+            timestamp: Date.now(),
+          }
+        );
       });
 
       const summaryData = await generateSummary(
@@ -343,8 +349,8 @@ const IntervieweeTab = () => {
     dispatch(resetInterview());
   };
 
-  if (interviewComplete) {
-    if (isGeneratingSummary) {
+  // Global loading screen when generating summary, regardless of completion view timing
+  if (isGeneratingSummary) {
       return (
         <>
           <WelcomeBackModal
@@ -383,8 +389,9 @@ const IntervieweeTab = () => {
           </div>
         </>
       );
-    }
+  }
 
+  if (interviewComplete) {
     return (
       <>
         <WelcomeBackModal

@@ -58,10 +58,9 @@ const InterviewerTab = () => {
     <div className="space-y-4 px-4">
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <FiBarChart className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold">Interview Dashboard</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold">
+            Interview Dashboard
+          </h2>
         </div>
         <p className="text-sm sm:text-base text-muted-foreground">
           Manage and review candidate interviews
@@ -92,8 +91,12 @@ const InterviewerTab = () => {
                 <FiTrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-bold">{stats.averageScore}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Average Score</p>
+                <p className="text-xl sm:text-2xl font-bold">
+                  {stats.averageScore}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Average Score
+                </p>
               </div>
             </div>
           </CardContent>
@@ -106,8 +109,12 @@ const InterviewerTab = () => {
                 <FiClock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-bold">{stats.completedToday}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Completed Today</p>
+                <p className="text-xl sm:text-2xl font-bold">
+                  {stats.completedToday}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Completed Today
+                </p>
               </div>
             </div>
           </CardContent>

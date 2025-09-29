@@ -1,5 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { saveCurrentInterview, clearCurrentInterview } from "../../services/localStorage";
+import {
+  saveCurrentInterview,
+  clearCurrentInterview,
+} from "../../services/localStorage";
 
 const initialState = {
   currentCandidate: null,
@@ -49,7 +52,12 @@ const interviewSlice = createSlice({
     },
     setAnswer: (state, action) => {
       const { questionIndex, answer, score, difficulty } = action.payload;
-      state.answers[questionIndex] = { answer, score, difficulty, timestamp: Date.now() };
+      state.answers[questionIndex] = {
+        answer,
+        score,
+        difficulty,
+        timestamp: Date.now(),
+      };
       state.answerSubmitTime = Date.now();
     },
     nextQuestion: (state) => {
@@ -111,18 +119,21 @@ export const {
 // Middleware to auto-save interview state to localStorage
 const interviewMiddleware = (store) => (next) => (action) => {
   const result = next(action);
-  
+
   // Only save if it's an interview action and interview is active
-  if (action.type.startsWith('interview/') && store.getState().interview.isInterviewActive) {
+  if (
+    action.type.startsWith("interview/") &&
+    store.getState().interview.isInterviewActive
+  ) {
     const interviewState = store.getState().interview;
     saveCurrentInterview(interviewState);
   }
-  
+
   // Clear localStorage when interview is reset
-  if (action.type === 'interview/resetInterview') {
+  if (action.type === "interview/resetInterview") {
     clearCurrentInterview();
   }
-  
+
   return result;
 };
 

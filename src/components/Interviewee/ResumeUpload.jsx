@@ -38,8 +38,6 @@ const ResumeUpload = ({
         throw new Error("Unsupported file type");
       }
 
-      console.log("Extracted text length:", text.length);
-
       // If text extraction failed or returned empty, create a fallback
       if (!text || text.trim().length === 0) {
         console.log("Text extraction failed, using fallback");
@@ -149,8 +147,8 @@ const ResumeUpload = ({
               className="hidden"
               id="resume-upload"
             />
-            <Button asChild>
-              <label htmlFor="resume-upload" className="cursor-pointer">
+            <Button asChild disabled={isProcessing} aria-disabled={isProcessing}>
+              <label htmlFor="resume-upload" className={`cursor-pointer ${isProcessing ? "pointer-events-none opacity-60" : ""}`}>
                 {isProcessing ? "Processing..." : "Choose File"}
               </label>
             </Button>
