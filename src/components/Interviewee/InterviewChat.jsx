@@ -182,6 +182,40 @@ const InterviewChat = ({
     onNextQuestion,
   ]);
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    toast.error("Copy/paste is disabled");
+  };
+
+  const handleCopy = (e) => {
+    e.preventDefault();
+    toast.error("Copy/paste is disabled");
+  };
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    toast.error("Copy/paste is disabled");
+  };
+
+  const handleKeyDown = (e) => {
+    // Prevent copy/paste shortcuts
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 'x')) {
+      e.preventDefault();
+      toast.error("Copy/paste is disabled");
+      return;
+    }
+    
+    // Allow Enter + Ctrl for submit
+    if (
+      e.key === "Enter" &&
+      e.ctrlKey &&
+      currentAnswer.trim() &&
+      !isSubmitting
+    ) {
+      handleSubmit();
+    }
+  };
+
   const handleSubmit = async () => {
     if (!currentAnswer.trim() || isSubmitting) return;
 
@@ -315,6 +349,8 @@ const InterviewChat = ({
                       ? "bg-secondary"
                       : "bg-muted"
                   }`}
+                  onCopy={message.type === "question" ? handleCopy : undefined}
+                  onContextMenu={message.type === "question" ? handleContextMenu : undefined}
                 >
                   {message.type === "question" && (
                     <div className="flex items-center gap-2 mb-1 sm:mb-2">
@@ -358,16 +394,9 @@ const InterviewChat = ({
               placeholder="Type your answer here..."
               className="flex-1 h-24 p-3 border-2 border-input rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring text-sm bg-background text-foreground placeholder:text-muted-foreground transition-all"
               disabled={isSubmitting}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  e.ctrlKey &&
-                  currentAnswer.trim() &&
-                  !isSubmitting
-                ) {
-                  handleSubmit();
-                }
-              }}
+              onPaste={handlePaste}
+              onKeyDown={handleKeyDown}
+              onContextMenu={handleContextMenu}
             />
             <Button
               onClick={handleSubmit}
