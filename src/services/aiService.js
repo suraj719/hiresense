@@ -28,7 +28,7 @@ export const generateQuestions = async (candidateInfo) => {
   Make the questions relevant to full-stack development with React and Node.js.`;
 
   const response = await mistral.chat.complete({
-    model: "mistral-large-latest",
+    model: "mistral-tiny",
     messages: [
       {
         role: "user",
@@ -157,7 +157,7 @@ Score guidelines:
 - 0-2: Very poor or irrelevant answer`;
 
   const response = await mistral.chat.complete({
-    model: "mistral-large-latest",
+    model: "mistral-tiny",
     messages: [
       {
         role: "user",
@@ -253,7 +253,7 @@ Rules:
 
   try {
     const response = await mistral.chat.complete({
-      model: "mistral-large-latest",
+      model: "mistral-tiny",
       messages: [
         {
           role: "user",
@@ -347,7 +347,7 @@ Please provide a concise professional summary (maximum 3-4 sentences) that inclu
 Keep it short, clear, and actionable for HR and technical managers.`;
 
   const response = await mistral.chat.complete({
-    model: "mistral-large-latest",
+    model: "mistral-tiny",
     messages: [
       {
         role: "user",
